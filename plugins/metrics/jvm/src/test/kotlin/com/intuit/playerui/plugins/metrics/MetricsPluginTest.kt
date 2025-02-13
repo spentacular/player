@@ -10,6 +10,9 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import io.mockk.slot
 import io.mockk.verify
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.TestTemplate
 import org.junit.jupiter.api.extension.ExtendWith
@@ -44,6 +47,48 @@ internal class MetricsPluginTest : PlayerTest() {
         player.start(simpleFlowString)
         player.inProgressState!!.transition("next")
         verify { renderEndHandler wasNot Called }
+    }
+
+    @TestTemplate
+    fun `should trigger onFlowBegin hook`() {
+        var onFlowBeginTapped = false
+        plugin?.hooks?.onFlowBegin?.tap("test") { _ ->
+            onFlowBeginTapped = true
+        }
+        
+        player.start(simpleFlowString)
+        assertTrue(onFlowBeginTapped)
+    }
+
+    @TestTemplate
+    fun `should trigger onFlowEnd hook`() = runBlockingTest {
+        var onFlowEndTapped = false
+        plugin?.hooks?.onFlowEnd?.tap("test") { _ ->
+            onFlowEndTapped = true
+        }
+
+        val flow = player.start(simpleFlowString)
+        assertFalse(onFlowEndTapped)
+
+        player.inProgressState!!.transition("Next")
+        val result = flow.await()
+
+        assertEquals("DONE", result.endState.outcome)
+        assertTrue(onFlowEndTapped)
+    }
+
+    @TestTemplate
+    fun `should trigger onRenderEnd hook`() {
+        var onRenderEndTapped = false
+        plugin?.hooks?.onRenderEnd?.tap("test") { _, _, _ ->
+            onRenderEndTapped = true
+        }
+
+        player.start(simpleFlowString)
+        assertFalse(onRenderEndTapped)
+
+        plugin?.renderEnd()
+        assertTrue(onRenderEndTapped)
     }
 }
 
