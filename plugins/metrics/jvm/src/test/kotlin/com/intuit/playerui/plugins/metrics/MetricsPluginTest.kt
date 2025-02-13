@@ -11,9 +11,9 @@ import io.mockk.mockkObject
 import io.mockk.slot
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.TestTemplate
 import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.test.assertEquals
@@ -55,7 +55,7 @@ internal class MetricsPluginTest : PlayerTest() {
         plugin?.hooks?.onFlowBegin?.tap("test") { _ ->
             onFlowBeginTapped = true
         }
-        
+
         player.start(simpleFlowString)
         assertTrue(onFlowBeginTapped)
     }

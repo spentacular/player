@@ -49,13 +49,13 @@ public class MetricsPlugin(
     @Serializable(Hooks.Serializer::class)
     public class Hooks internal constructor(override val node: Node) : NodeWrapper {
         public val onFlowBegin: NodeSyncHook1<PlayerFlowMetrics>
-                by NodeSerializableField(NodeSyncHook1.serializer(PlayerFlowMetrics.serializer()))
+            by NodeSerializableField(NodeSyncHook1.serializer(PlayerFlowMetrics.serializer()))
 
         public val onFlowEnd: NodeSyncHook1<PlayerFlowMetrics>
-                by NodeSerializableField(NodeSyncHook1.serializer(PlayerFlowMetrics.serializer()))
+            by NodeSerializableField(NodeSyncHook1.serializer(PlayerFlowMetrics.serializer()))
 
         public val onRenderEnd: NodeSyncHook3<Timing, RenderMetrics, PlayerFlowMetrics>
-                by NodeSerializableField(NodeSyncHook3.serializer(Timing.serializer(), RenderMetrics.serializer(), PlayerFlowMetrics.serializer()))
+            by NodeSerializableField(NodeSyncHook3.serializer(Timing.serializer(), RenderMetrics.serializer(), PlayerFlowMetrics.serializer()))
 
         internal object Serializer : NodeWrapperSerializer<Hooks>(::Hooks)
     }
