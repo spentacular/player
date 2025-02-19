@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.TestTemplate
 import org.junit.jupiter.api.extension.ExtendWith
+import kotlin.contracts.ExperimentalContracts
 import kotlin.test.assertEquals
 
 @ExtendWith(MockKExtension::class)
@@ -49,22 +50,31 @@ internal class MetricsPluginTest : PlayerTest() {
         verify { renderEndHandler wasNot Called }
     }
 
+    @OptIn(ExperimentalContracts::class)
     @TestTemplate
     fun `should trigger onFlowBegin hook`() {
         var onFlowBeginTapped = false
-        plugin?.hooks?.onFlowBegin?.tap("test") { _ ->
+        var metricsVal: PlayerFlowMetrics? = null
+
+        plugin?.hooks?.onFlowBegin?.tap("test") { metrics ->
             onFlowBeginTapped = true
+            metricsVal = metrics
         }
 
         player.start(simpleFlowString)
         assertTrue(onFlowBeginTapped)
+        assertNotNull(metricsVal)
     }
 
+    @OptIn(ExperimentalContracts::class)
     @TestTemplate
     fun `should trigger onFlowEnd hook`() = runBlockingTest {
         var onFlowEndTapped = false
-        plugin?.hooks?.onFlowEnd?.tap("test") { _ ->
+        var metricsVal: PlayerFlowMetrics? = null
+
+        plugin?.hooks?.onFlowEnd?.tap("test") { metrics ->
             onFlowEndTapped = true
+            metricsVal = metrics
         }
 
         val flow = player.start(simpleFlowString)
@@ -75,13 +85,22 @@ internal class MetricsPluginTest : PlayerTest() {
 
         assertEquals("DONE", result.endState.outcome)
         assertTrue(onFlowEndTapped)
+        assertNotNull(metricsVal)
     }
 
+    @OptIn(ExperimentalContracts::class)
     @TestTemplate
     fun `should trigger onRenderEnd hook`() {
         var onRenderEndTapped = false
-        plugin?.hooks?.onRenderEnd?.tap("test") { _, _, _ ->
+        var timingVal: Timing? = null
+        var renderMetricsVal: RenderMetrics? = null
+        var playerFlowMetricsVal: PlayerFlowMetrics? = null
+
+        plugin?.hooks?.onRenderEnd?.tap("test") { timing, renderMetrics, playerFlowMetrics ->
             onRenderEndTapped = true
+            timingVal = timing
+            renderMetricsVal = renderMetrics
+            playerFlowMetricsVal = playerFlowMetrics
         }
 
         player.start(simpleFlowString)
@@ -89,6 +108,9 @@ internal class MetricsPluginTest : PlayerTest() {
 
         plugin?.renderEnd()
         assertTrue(onRenderEndTapped)
+        assertNotNull(timingVal)
+        assertNotNull(renderMetricsVal)
+        assertNotNull(playerFlowMetricsVal)
     }
 }
 
